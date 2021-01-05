@@ -4,9 +4,9 @@ import React, { Fragment } from 'react';
 import QueuedSongList from './QueuedSongList';
 
 const song = {
-    title: 'SONG',
-    artist: 'singer',
-    thumbnail: 'https://i1.sndcdn.com/artworks-000107899443-qxcwl0-t500x500.jpg'
+    title: 'Sweet Home Alabama',
+    artist: 'Lynyrd Skynyrd',
+    thumbnail: 'https://i.ytimg.com/vi/IwWUOmk7wO0/hqdefault.jpg'
 };
 
 const useStyles = makeStyles((theme) => ({

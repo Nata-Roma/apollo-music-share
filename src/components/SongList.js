@@ -1,15 +1,11 @@
+import { useQuery } from '@apollo/client';
 import { CircularProgress } from '@material-ui/core';
 import React from 'react';
+import { GET_SONG } from '../graphql/query';
 import SongCard from './SongCard';
 
-const song = {
-    title: 'SONG',
-    artist: 'singer', 
-    thumbnail: 'https://i1.sndcdn.com/artworks-000107899443-qxcwl0-t500x500.jpg'
-}
-
 const SongList = () => {
-    const loading = false;
+    const {data, loading, error} = useQuery(GET_SONG);
 
     if(loading) {
         return (
@@ -23,8 +19,9 @@ const SongList = () => {
             </div>
         )
     }
+    if(error) return <div>Error fetching song</div>
     return <div>
-    {Array.from({length: 10}, () => song).map( (song, i) => <SongCard key={i} {...song} /> )}
+    {data.songs.map( (song) => <SongCard key={song.id} {...song} /> )}
         
     </div>
 };
