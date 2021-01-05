@@ -15,7 +15,7 @@ function App() {
     <AddSong />
         <SongList />
     </Grid>
-    <Grid item xs={12} md={5}>
+    <Grid item xs={12} md={5} style={{top: 70, right: 0, position: 'fixed', width: '100%'}}>
     <SongPlayer />
     </Grid>
       
