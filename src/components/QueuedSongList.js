@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Typography, useMediaQuery } from '@material-ui/core';
 import React from 'react';
 import FavSongCard from './FavSongCard';
 
@@ -9,7 +9,8 @@ const song = {
 };
 
 const QueuedSongList = () => {
-    return (
+    const greaterThan = useMediaQuery((theme) => theme.breakpoints.up('md'));
+    return greaterThan && (
     <div style={{margin: '10px 0'}}>
     <Typography color='textSecondary' variant='button' >
         QUEUE (5)
