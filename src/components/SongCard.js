@@ -37,11 +37,11 @@ const SongCard = ({ title, artist, thumbnail }) => {
                 
             </CardContent>
             <CardActions>
-                <IconButton color='primary' size='small'>
-                    <PlayArrow />
+                <IconButton size='small'>
+                    <PlayArrow color='primary' />
                 </IconButton>
-                <IconButton color='secondary' size='small'>
-                    <Save />
+                <IconButton size='small'>
+                    <Save color='secondary' />
                 </IconButton>
             </CardActions>
         </Card>
