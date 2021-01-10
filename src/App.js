@@ -1,18 +1,32 @@
 import { Grid, Hidden, useMediaQuery  } from "@material-ui/core";
-import React from "react";
+import React, { createContext, useContext, useReducer } from "react";
 import AddSong from "./components/AddSong";
 import Header from "./components/Header";
 import SongList from "./components/SongList";
 import SongPlayer from "./components/SongPlayer";
+import songReducer from "./reducer";
 
+export const SongContext = createContext({
+  song: {
+    id: '636e3e04-65d5-435c-8c88-4d8a8db2da17',
+    title: 'Sweet Home Alabama',
+    artist: 'Lynyrd Skynyrd',
+    thumbnail: 'https://i.ytimg.com/vi/IwWUOmk7wO0/hqdefault.jpg',
+    url: 'https://youtu.be/ye5BuYf8q4o',
+    duration: 300,
+  },
+  isPlaying: false,
+});
 
 
 function App() {
+  const initialSongState = useContext(SongContext);
+  const [state, dispatch] = useReducer(songReducer, initialSongState);
   const greaterThanMD = useMediaQuery((theme) => theme.breakpoints.up('md'));
   const greaterThanSM = useMediaQuery((theme) => theme.breakpoints.up('sm'));
 
   return (
-    <div>
+    <SongContext.Provider value={{state, dispatch}}>
     <Hidden only='xs'>
       <Header />
     </Hidden>
@@ -40,7 +54,7 @@ function App() {
     </Grid>
  
     
-    </div>
+    </SongContext.Provider>
   );
 }
 

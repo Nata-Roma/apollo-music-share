@@ -4,6 +4,8 @@ import { PlayForWorkRounded, PlaylistAddRounded } from '@material-ui/icons';
 import SoundcloudPlayer from 'react-player/lib/players/SoundCloud';
 import YoutubePlayer from 'react-player/lib/players/YouTube';
 import ReactPlayer from 'react-player';
+import { useMutation } from '@apollo/client';
+import { ADD_SONG } from '../graphql/mutations';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -25,17 +27,20 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const DEFAULT_SONG = {
+    duration: 0,
+    title: '',
+    artist: '',
+    thumbnail: ''
+};
+
 const AddSong = () => {
+    const [addSong, { error }] = useMutation(ADD_SONG);
     const [openDialog, setOpenDialog] = useState(false);
     const classes = useStyles();
     const [url, setUrl] = useState('');
     const [payable, setPayable] = useState(false);
-    const [song, setSong] = useState({
-        duration: 0,
-        title: '',
-        artist: '',
-        thumbnail: ''
-    });
+    const [song, setSong] = useState(DEFAULT_SONG);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -46,21 +51,28 @@ const AddSong = () => {
         setPayable(isPlayable);
     }, [url]);
 
-    const handleEditSong = async ({player}) => {
+    const handleChangeSong = (e) => {
+        const { name, value } = e.target;
+        setSong((prevSong) => ({
+            ...prevSong,
+            [name]: value
+        }))
+    }
+
+    const handleEditSong = async ({ player }) => {
         const nestedPlayer = player.player.player;
         let songData;
-        if(nestedPlayer.getVideoData) {
+        if (nestedPlayer.getVideoData) {
             songData = getYoutubeInfo(nestedPlayer);
         } else if (nestedPlayer.getCurrentSound) {
             songData = await getSoundcloudInfo(nestedPlayer);
         };
-        setSong({...songData, url});
+        setSong({ ...songData, url });
     };
 
     const getYoutubeInfo = (player) => {
         const duration = player.getDuration();
-        const {title, video_id, author} = player.getVideoData();
-        console.log('title ' + title + ', id ' + video_id + ', artist ' + author + ' , ' + duration)
+        const { title, video_id, author } = player.getVideoData();
         const thumbnail = `http://img.youtube.com/vi/${video_id}/0.jpg`;
         return {
             duration,
@@ -73,8 +85,8 @@ const AddSong = () => {
     const getSoundcloudInfo = (player) => {
         return new Promise((resolve) => {
             player.getCurrentSound((songData) => {
-                if(songData) {
-                    resolve ({
+                if (songData) {
+                    resolve({
                         duration: Number(songData.duration / 1000),
                         title: songData.title,
                         artist: songData.user.userName,
@@ -83,8 +95,33 @@ const AddSong = () => {
                 }
             })
         })
-        
     }
+
+    const handleAddSong = async () => {
+        try {
+            const { title, artist, duration, thumbnail, url } = song;
+            await addSong({
+                variables: {
+                    title: title.length > 0 ? title : null,
+                    artist: artist.length > 0 ? artist : null,
+                    thumbnail: thumbnail.length > 0 ? thumbnail : null,
+                    url: url.length > 0 ? url : null,
+                    duration: duration > 0 ? duration : null,
+                }
+            })
+            handleCloseDialog();
+            setSong(DEFAULT_SONG);
+            setUrl('');
+        } catch (error) {
+            console.error('Error adding song', error)
+        }
+    };
+
+    const handleError = (field) => {
+        return error?.graphQLErrors[0]?.extensions?.path.includes(field);
+    };
+
+    const { thumbnail, title, artist } = song;
 
     return (
         <div className={classes.container}>
@@ -92,19 +129,42 @@ const AddSong = () => {
                 <DialogTitle>Edit Song</DialogTitle>
                 <DialogContent>
                     <img
-                        src={song.thumbnail}
+                        src={thumbnail}
                         alt='Song thumbnail'
                         className={classes.songThubmnail}
                     />
-                    <TextField margin='dense' name='title' label='Title' fullWidth value={song.title} />
-                    <TextField margin='dense' name='artist' label='Artist' fullWidth value={song.artist} />
-                    <TextField margin='dense' name='thumbnail' label='Thumbnail' fullWidth value={song.thumbnail} />
+                    <TextField
+                        margin='dense'
+                        name='title'
+                        label='Title'
+                        fullWidth value={title}
+                        onChange={handleChangeSong}
+                        error={handleError('title')}
+                        helperText={handleError('title') && 'Fill out the field'}
+                    />
+                    <TextField 
+                        margin='dense' 
+                        name='artist' 
+                        label='Artist' 
+                        fullWidth value={artist} 
+                        onChange={handleChangeSong} 
+                        error={handleError('artist')}
+                        helperText={handleError('artist') && 'Fill out the field'} 
+                    />
+                    <TextField 
+                        margin='dense' 
+                        name='thumbnail' 
+                        label='Thumbnail' 
+                        fullWidth value={thumbnail} 
+                        error={handleError('thumbnail')}
+                        helperText={handleError('thumbnail') && 'Fill out the field'} 
+                    />
                 </DialogContent>
                 <DialogActions>
-                <Button color='secondary' onClick={handleCloseDialog}>Cancel</Button>
-                <Button color='primary' variant='outlined'>Add song</Button>
+                    <Button color='secondary' onClick={handleCloseDialog}>Cancel</Button>
+                    <Button color='primary' variant='outlined' onClick={handleAddSong}>Add song</Button>
                 </DialogActions>
-                
+
             </Dialog>
             <TextField
                 className={classes.urlInput}
@@ -113,7 +173,7 @@ const AddSong = () => {
                 type='url'
                 margin='normal'
                 value={url}
-                onChange={ (e) => setUrl(e.target.value)}
+                onChange={(e) => setUrl(e.target.value)}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
@@ -125,7 +185,7 @@ const AddSong = () => {
                 <PlayForWorkRounded />
             </TextField>
             <Button
-            disabled={!payable}
+                disabled={!payable}
                 className={classes.addButton}
                 variant='contained'
                 color='primary'

@@ -9,12 +9,14 @@
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.6.0",
+    "apollo-link-ws": "^1.0.20",
     "cross-env": "^7.0.3",
     "graphql": "^15.4.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-player": "^2.7.2",
     "react-scripts": "4.0.1",
+    "subscriptions-transport-ws": "^0.9.18",
     "web-vitals": "^0.2.4"
   },
   "scripts": {

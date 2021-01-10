@@ -3,12 +3,9 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import { CssBaseline, MuiThemeProvider } from "@material-ui/core";
 import theme from './theme';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
+import client from './graphql/client';
 
-const client = new ApolloClient({
-  uri: 'https://appolo-music-share.hasura.app/v1/graphql',
-  cache: new InMemoryCache()
-});
 
 ReactDOM.render(
   <ApolloProvider client={client}>
